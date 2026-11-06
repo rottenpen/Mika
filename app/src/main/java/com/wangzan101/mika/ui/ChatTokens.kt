@@ -17,6 +17,7 @@ import com.wangzan101.mika.record.RunStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.math.RoundingMode
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -31,9 +32,12 @@ object ChatTokensCopy {
         val formatter = NumberFormat.getCurrencyInstance(uiLocale()).apply {
             currency = Currency.getInstance("CNY")
             minimumFractionDigits = 2
-            maximumFractionDigits = maxOf(2, min.scale(), max.scale())
+            maximumFractionDigits = 2
+            roundingMode = RoundingMode.HALF_UP
         }
-        val amount = if (min.compareTo(max) == 0) formatter.format(min) else "${formatter.format(min)}–${formatter.format(max)}"
+        val lower = formatter.format(min)
+        val upper = formatter.format(max)
+        val amount = if (lower == upper) lower else "$lower–$upper"
         val result = tr(R.string.chat_task_cost_estimate, amount)
         return if (estimate.partial) tr(R.string.chat_task_cost_partial, result) else result
     }
